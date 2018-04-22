@@ -64,6 +64,7 @@ public class PhrasesActivity extends AppCompatActivity {
         WordAdapter wordAdapter = new WordAdapter(this,words);
         wordAdapter.setColorResourceID(R.color.category_phrases);
         ListView listView = (ListView)findViewById(R.id.phrases_list);
+
         listView.setAdapter(wordAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @TargetApi(Build.VERSION_CODES.M)
@@ -87,6 +88,12 @@ public class PhrasesActivity extends AppCompatActivity {
 
     public void onStop(){
         super.onStop();
+        releaseMediaPlayer();
+    }
+
+
+    protected void onDestroy(){
+        super.onDestroy();
         releaseMediaPlayer();
     }
     /**

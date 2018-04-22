@@ -1,6 +1,8 @@
 package com.example.android.miwok;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,10 +13,38 @@ import java.util.ArrayList;
 
 public class FamilyMembersActivity extends AppCompatActivity {
 
+    private AudioManager mAudioManager;
+
+    private MediaPlayer mMediaPlayer;
+
+    private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int i) {
+            if(i==AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ||
+                    i==AudioManager.AUDIOFOCUS_LOSS_TRANSIENT){
+                mMediaPlayer.pause();
+                mMediaPlayer.seekTo(i);
+            }else if(i==AudioManager.AUDIOFOCUS_LOSS){
+                releaseMediaPlayer();
+            }else if(i==AudioManager.AUDIOFOCUS_GAIN){
+                mMediaPlayer.start();
+            }
+
+        }
+    };
+
+    private MediaPlayer.OnCompletionListener mOnCompetionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mediaPlayer) {
+            releaseMediaPlayer();
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_family_members);
+
+        mAudioManager = (AudioManager)this.getSystemService(AUDIO_SERVICE);
 
         final ArrayList<Word> words = new ArrayList<>();
         words.add(new Word(R.drawable.family_father,"father","əpə",R.raw.family_father));
@@ -36,9 +66,27 @@ public class FamilyMembersActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Word word = words.get(adapterView.getPositionForView(view));
-                MediaPlayer mMediaPlayer = MediaPlayer.create(FamilyMembersActivity.this,word.getMediaResourceID());
-                mMediaPlayer.start();
+                int result = mAudioManager.requestAudioFocus(mOnAudioFocusChangeListener, AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+                if(result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
+                    mMediaPlayer = MediaPlayer.create(FamilyMembersActivity.this,word.getMediaResourceID());
+                    mMediaPlayer.start();
+                    mMediaPlayer.setOnCompletionListener(mOnCompetionListener);
+                }
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        releaseMediaPlayer();
+    }
+
+    private void releaseMediaPlayer(){
+        if(mMediaPlayer != null){
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+        mAudioManager.abandonAudioFocus(mOnAudioFocusChangeListener);
     }
 }

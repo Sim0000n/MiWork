@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="88dp"
+    android:id="@+id/list_layout"
+    android:background="@color/category_colors"
 
     >
     <ImageView
@@ -17,7 +19,6 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/list_layout"
         android:layout_weight="1"
         android:paddingLeft="16dp"
         android:orientation="vertical">
@@ -40,5 +41,13 @@
         android:textColor="@android:color/white"
         tools:text="one"/>
     </LinearLayout>
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="0"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_play_arrow_white_24dp"
+        />
 
 </LinearLayout>
